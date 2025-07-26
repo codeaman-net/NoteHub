@@ -1,0 +1,40 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+
+## Build outputs
+*.dll
+*.exe
+*.app
+*.log
+*.pdb
+
+## Configuration
+appsettings.*.json
+secrets.json
+
+## Tests
+TestResults/
+coverage/
+
+## NUGET
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.nuspec
+
+## OS files
+.DS_Store
+Thumbs.db
