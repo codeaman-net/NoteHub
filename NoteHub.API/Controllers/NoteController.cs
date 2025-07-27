@@ -1,12 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+using NoteHub.Application.Factories.Abstract;
 using NoteHub.Application.Interfaces;
+using NoteHub.Application.Strategies.Concrete;
 using NoteHub.Domain.Entities;
+using NoteHub.Domain.Enums;
+using NoteHub.Infrastructure.Persistence;
 
 namespace NoteHub.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class NoteController(INoteService noteService) : Controller
+public class NoteController(INoteService noteService, INoteFilterStrategyFactory noteFilterFactory) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -75,5 +79,20 @@ public class NoteController(INoteService noteService) : Controller
         await noteService.RemoveTagFromNoteAsync(noteId, tagId);
         return NoContent();
     }
+    
+    [HttpGet("filter")]
+    public async Task<IActionResult> FilterNotes([FromQuery] string filter, [FromQuery] string? keyword)
+    {
+        var allNotes = await noteService.GetAllNotesAsync();
 
+        if (!Enum.TryParse<NoteFilterType>(filter, true, out var filterType))
+            return BadRequest("Geçersiz filtre tipi.");
+
+        var strategy = noteFilterFactory.Create(filterType, keyword);
+        var context = new NoteFilterContext();
+        context.SetStrategy(strategy);
+
+        var filtered = await context.FilterAsync(allNotes);
+        return Ok(filtered);
+    }
 }
